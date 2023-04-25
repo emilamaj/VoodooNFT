@@ -14,11 +14,16 @@ import "./GameNFT.sol";
 import "../lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 
 contract GameMint is AccessControl {
+    event Setup(uint256 revealBlock, uint256 nftPrice, bytes32 hashOfCommitment);
+    event UserCommit(address indexed user);
+    event Reveal(uint256 adminSecret);
+    event UserMint(address indexed user, uint256 indexed nftId);
+
     // bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00; // Inherited from AccessControl.sol
     GameNFT public nftContract;
 
     bool public isSetup = false; // Is the contract correctly setup (price, hash, block height, etc...) ?
-    uint256 public revealBlock; // Block number starting from which the Admin can reveal their commitment, and allow users to mint their NFTs.
+    uint256 public revealBlock; // Block number starting from which the Admin can reveal their commitment, and allow users to mint their NFTs. Could use uint32 to save gas on storage. Could merge with isSetup.
     uint256 public nftPrice = 0; // Price of the NFT in MATIC, set by the admin
     bytes32 public hashOfCommitment; // Commitment of the admin
     uint256 public adminSecret = 0; // Secret of the admin, revealed starting from the revealBlock
@@ -26,16 +31,22 @@ contract GameMint is AccessControl {
     mapping(address => bool) public hasCommitted; // Keep track of which users have committed a mint order.
     mapping(address => bool) public hasMinted; // Keeps track of which users have minted an NFT.
 
-
+    uint256 public constant ID_COUNT = 4; // Number of different NFTs available for minting.
     // Simple constructor.
     constructor(address _nftContract) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         nftContract = GameNFT(_nftContract);
     }
 
-    // Grant admin role to another account.
-    function grantAdminRole(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    // Grant admin role to another account. WARNING: Make sure to communicate the adminSecret through an off-chain canal.
+    function addAdminRole(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
         grantRole(DEFAULT_ADMIN_ROLE, account);
+    }
+
+    // Revoke admin role from an account. WARNING: Make sure to communicate the adminSecret through an off-chain canal.
+    function removeAdminRole(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(account != _msgSender(), "Cannot revoke oneself from an admin role"); // This makes sure that there is always at least 1 admin.
+        revokeRole(DEFAULT_ADMIN_ROLE, account);
     }
 
     // Helper function to reliably find the hash of a random number off-chain.
@@ -44,15 +55,19 @@ contract GameMint is AccessControl {
         return keccak256(abi.encodePacked(_randomNumber));
     }
 
-    // Allows the Admin to setup the contract. This function can only be called once for trustless reasons.
+    // Allows the Admin to setup the sale. This function can only be called once for trustless reasons.
     function adminSetup(uint256 _revealBlock, uint256 _nftPrice, bytes32 _hashOfCommitment) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(!isSetup, "Contract is already setup");
         require(_revealBlock > block.number, "Reveal block must be in the future");
-        // require(_nftPrice > 0, "NFT price must be positive"); // Allow price==0 ?
+        // require(_nftPrice > 0, "NFT price must be positive"); // NFT can be free.
+        
         revealBlock = _revealBlock;
         nftPrice = _nftPrice;
         hashOfCommitment = _hashOfCommitment;
         isSetup = true; // Now the contract is setup. Users can commit to minting an NFT until the reveal block.
+        
+        // Emit the corresponding event.
+        emit Setup(_revealBlock, _nftPrice, _hashOfCommitment);
     }
 
     // Users can commit to minting an NFT by calling this function.
@@ -61,11 +76,14 @@ contract GameMint is AccessControl {
         require(block.number < revealBlock, "Reveal block has already passed");
         require(!hasCommitted[_msgSender()], "User has already committed");
 
-        // Check that the user has paid the price.
-        require(msg.value >= nftPrice, "Incorrect amount of MATIC sent");
+        // Check that the user has paid exactly the price.
+        require(msg.value == nftPrice, "Incorrect amount of MATIC sent");
 
         // Mark the user as having committed.
         hasCommitted[_msgSender()] = true;
+
+        // Emit the corresponding event.
+        emit UserCommit(_msgSender());
     }
 
     // The admin can reveal their commitment by calling this function.
@@ -79,27 +97,37 @@ contract GameMint is AccessControl {
 
         // Mark the admin as having revealed their secret.
         adminSecret = _adminSecret;
+
+        // Emit Reveal event.
+        emit Reveal(_adminSecret);
     }
 
     // Users can mint their NFT by calling this function.
-    function userMint() external {
+    function userMint() external returns(uint256){
         require(isSetup, "Contract is not setup");
         require(block.number >= revealBlock, "Reveal block has not passed yet");
         require(hasCommitted[_msgSender()], "User has not committed");
+        require(adminSecret > 0, "Admin has not revealed their secret");
         require(!hasMinted[_msgSender()], "User has already minted");
 
         // Calculate the NFT type to mint.
-        uint256 nftTypeId = uint256(keccak256(abi.encodePacked(_msgSender(), adminSecret))) % 4;
+        uint256 nftTypeId = uint256(keccak256(abi.encodePacked(_msgSender(), adminSecret))) % ID_COUNT;
 
         // Mint 1 NFT of the given type, with no optional data.
         nftContract.mint(_msgSender(), nftTypeId, 1, "");
 
         // Mark the user as having minted.
         hasMinted[_msgSender()] = true;
+
+        // Emit an event.
+        emit UserMint(_msgSender(), nftTypeId);
+
+        return nftTypeId;
     }
 
-    // Withdraw collected MATIC.
+    // Withdraw collected MATIC, only once the admin has revealed their secret.
     function withdrawFunds(address payable recipient, uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(adminSecret > 0, "Admin has not revealed their secret");
         recipient.transfer(amount);
     }
 }

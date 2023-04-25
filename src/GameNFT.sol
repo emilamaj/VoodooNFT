@@ -10,24 +10,39 @@ import "../lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
 import "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract GameNFT is ERC1155, AccessControl {
+    event Mint(address indexed account, uint256 indexed id, uint256 amount, bytes data);
+
     // Base URI
     string constant BASE_URI = "https://localhost:3000/metadata/";
     string constant JSON_URI = "https://localhost:3000/metadata/{id}.json";
     // bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00; // Inherited from AccessControl.sol
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
+    uint256 public constant ID_COUNT = 4; // Number of different NFTs available for minting.
     
     // Constructor, not much is done here.
     constructor() ERC1155(JSON_URI) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
+    // Grant admin role to another account. WARNING: Make sure to communicate the adminSecret through an off-chain canal.
+    function addAdminRole(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(DEFAULT_ADMIN_ROLE, account);
+    }
+
+    // Revoke admin role from an account. WARNING: Make sure to communicate the adminSecret through an off-chain canal.
+    function removeAdminRole(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(account != _msgSender(), "Cannot revoke oneself from an admin role"); // This makes sure that there is always at least 1 admin.
+        revokeRole(DEFAULT_ADMIN_ROLE, account);
+    }
+    
     // Add a new MINTER_ROLE to an account.
-    function addMinter(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+    function addMinterRole(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         grantRole(MINTER_ROLE, account);
     }
 
     // Remove a MINTER_ROLE from an account.
-    function removeMinter(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+    function removeMinterRole(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         revokeRole(MINTER_ROLE, account);
     }
     
@@ -46,15 +61,16 @@ contract GameNFT is ERC1155, AccessControl {
         );
     }
 
-    // Override setApprovedForAll to work with Wyvern proxy accounts (optional).
-
     // Contract-level metadata (also called storefront metadata)
     function contractURI() public pure returns (string memory) {
         return string(abi.encodePacked(BASE_URI, "contract.json"));
     }
 
     // Mint a new NFT. Only authorized accounts can mint (GameMint/Admins). The users are supposed to interact with GameMint.sol for minting.
-    function mint(address account, uint256 id, uint256 amount, bytes memory data) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+    function mint(address account, uint256 id, uint256 amount, bytes memory data) public virtual onlyRole(MINTER_ROLE) {
         _mint(account, id, amount, data);
+
+        // Emit event
+        emit Mint(account, id, amount, data);
     }
 }
