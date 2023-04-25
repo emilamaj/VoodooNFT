@@ -1,55 +1,60 @@
+// This ERC1155 NFT smart contract allows the deployment of multiple types of NFTs. 
+// It grants admin role to some account. 
+// The users will interact with the GameMint.sol smart contract for the minting mechanics.
+
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../lib/openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
+import "../lib/openzeppelin-contracts/contracts/access/AccessControl.sol";
+import "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract GameNFT is ERC1155, AccessControl {
-    using SafeMath for uint256;
-
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    uint256 private nextTokenId = 1;
-    mapping(uint256 => string) private _unrevealedUri;
-    mapping(uint256 => string) private _tokenUri;
-    uint256 public revealTimestamp;
-
-    constructor(string memory _uri, uint256 _revealTimestamp)
-        ERC1155(_uri)
-    {
-        _setupRole(ADMIN_ROLE, _msgSender());
-        revealTimestamp = _revealTimestamp;
+    // Base URI
+    string constant BASE_URI = "https://localhost:3000/metadata/";
+    string constant JSON_URI = "https://localhost:3000/metadata/{id}.json";
+    // bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00; // Inherited from AccessControl.sol
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    
+    // Constructor, not much is done here.
+    constructor() ERC1155(JSON_URI) {
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
-    function setRevealTimestamp(uint256 _revealTimestamp) external {
-        require(hasRole(ADMIN_ROLE, _msgSender()), "Only admin can set reveal timestamp");
-        revealTimestamp = _revealTimestamp;
+    // Add a new MINTER_ROLE to an account.
+    function addMinter(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(MINTER_ROLE, account);
     }
 
-    function mint(address to, uint256 amount) external onlyRole(ADMIN_ROLE) returns (uint256) {
-        uint256 tokenId = nextTokenId;
-        nextTokenId = nextTokenId.add(1);
-        _mint(to, tokenId, amount, "");
-        return tokenId;
+    // Remove a MINTER_ROLE from an account.
+    function removeMinter(address account) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        revokeRole(MINTER_ROLE, account);
+    }
+    
+    // Override supportsInterface since it is implemented both in ERC1155 and AccessControl. 
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
+        return ERC1155.supportsInterface(interfaceId) || AccessControl.supportsInterface(interfaceId);
+    }
+    
+    // Override "uri" function to return the base URI (for compatibility with OpenSea).
+    function uri(uint256 _tokenid) override public pure returns (string memory) {
+        return string(
+            abi.encodePacked( // Use of abi.encodePacked to concatenate strings
+                BASE_URI,
+                Strings.toString(_tokenid),".json"
+            )
+        );
     }
 
-    function setUnrevealedUri(uint256 tokenId, string memory _uri) external onlyRole(ADMIN_ROLE) {
-        _unrevealedUri[tokenId] = _uri;
+    // Override setApprovedForAll to work with Wyvern proxy accounts (optional).
+
+    // Contract-level metadata (also called storefront metadata)
+    function contractURI() public pure returns (string memory) {
+        return string(abi.encodePacked(BASE_URI, "contract.json"));
     }
 
-    function setTokenUri(uint256 tokenId, string memory _uri) external onlyRole(ADMIN_ROLE) {
-        _tokenUri[tokenId] = _uri;
-    }
-
-    function uri(uint256 tokenId) public view override returns (string memory) {
-        if (block.timestamp < revealTimestamp) {
-            return _unrevealedUri[tokenId];
-        } else {
-            return _tokenUri[tokenId];
-        }
-    }
-
-    function grantAdminRole(address account) public onlyRole(ADMIN_ROLE) {
-        grantRole(ADMIN_ROLE, account);
+    // Mint a new NFT. Only authorized accounts can mint (GameMint/Admins). The users are supposed to interact with GameMint.sol for minting.
+    function mint(address account, uint256 id, uint256 amount, bytes memory data) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        _mint(account, id, amount, data);
     }
 }
