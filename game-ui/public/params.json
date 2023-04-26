@@ -1,5 +1,6 @@
 {
     "deployed": false,
     "nftContractAddress": "0xBadAddress",
-    "mintContractAddress": "0xBADADD2E55"
+    "mintContractAddress": "0xBadAddress",
+    "rpcUrl": "https://polygon-mumbai.g.alchemy.com/v2/2cLxegjcwQTpjyJ71oNmF0ePehN8zDSc"
 }
