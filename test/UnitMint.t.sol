@@ -13,6 +13,7 @@ contract UnitNFT is Test {
     GameNFT public nftContract;
     GameMint public mintContract;
 
+    uint256 private id_count = 4;
     uint256 private secretNumber = 0xBAD; // Must not be revealed on-chain before the revealBlock
     bytes32 public committedSecretHash; // Calculated in setUpSale()
     uint256 public revealBlock; // Calculated in setUpSale()
@@ -22,7 +23,7 @@ contract UnitNFT is Test {
     function setUp() public {
         // Deploy the NFT contract
         nftContract = new GameNFT(BASE_URI);
-        mintContract = new GameMint(address(nftContract));
+        mintContract = new GameMint(address(nftContract), id_count);
 
         // Set the mint contract as a minter for the NFT contract (MINTER_ROLE)
         nftContract.addMinterRole(address(mintContract));
