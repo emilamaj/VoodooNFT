@@ -17,24 +17,26 @@ function App() {
   useEffect(() => {
     loadContracts();
     const interval = setInterval(() => {
+      console.log("refresh interval")
       loadContracts();
-    }, 5000);
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 
   const loadWeb3AndAccount = async () => {
+    console.log("loadWeb3AndAccount")
     await loadWeb3();
     const account = await getCurrentAccount();
     setCurrentAccount(account);
   };
 
   const loadContracts = async () => {
+    console.log("loadContracts")
     const isDeployed = await fetch('/params.json').then((res) => res.json()).then((res) => res.deployed);
     if (isDeployed) {
       const ctr = await getContracts();
       if (ctr) {
         setContracts(ctr);
-        updateGameState();
       }
     } else {
       setGameState('NOT_DEPLOYED');
@@ -42,6 +44,7 @@ function App() {
   };
 
   const updateGameState = () => {
+    console.log("updateGameState")
     // Fetch game state from contract and update it
     getMintContractState(contracts).then((sta) => {
       setGameState(sta);
@@ -49,23 +52,32 @@ function App() {
   };
 
   const handleCommit = async () => {
+    console.log("handleCommit")
     await loadWeb3AndAccount();
     await commit(currentAccount, contracts);
     updateGameState();
   };
 
   const handleMint = async () => {
+    console.log("handleMint")
     await loadWeb3AndAccount();
     await mint(currentAccount, contracts);
     updateGameState();
   };
 
+  useEffect(() => {
+    if (contracts) {
+      console.log("contract change hook")
+      updateGameState();
+    }
+  }, [contracts]);
+
   const renderPhaseContent = () => {
     switch (gameState) {
       case 'NOT_DEPLOYED':
-        return <p>Contracts not deployed. Set contract addresses in params.json.</p>;
+        return <p>Wainting for deployment. Set contract addresses in params.json</p>;
       case 'SETUP':
-        return <p>Admin should set the reveal block, commit price, and secret hash.</p>;
+        return <p>Waiting for admin to set the reveal block, commit price, and secret hash.</p>;
       case 'COMMIT':
         return (
           <>
@@ -84,7 +96,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>My NFT Project</h1>
+      <h1>Harry Potter NFTs</h1>
       {renderPhaseContent()}
       <NFTExplorer />
       <NFTList address={currentAccount} contracts={contracts} />

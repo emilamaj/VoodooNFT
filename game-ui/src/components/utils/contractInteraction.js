@@ -6,13 +6,19 @@ const web3 = new Web3(Web3.givenProvider || 'http://localhost:8545');
 export async function getContracts() {
   
   // Use fetch() to load the ABIs
-  const mintContractAbi = await fetch('/ABI/GameMint.json').then((res) => res.json());
-  const nftContractAbi = await fetch('/ABI/GameNFT.json').then((res) => res.json());
-
+  const mintContractOut = await fetch('/ABI/GameMint.json').then((res) => res.json());
+  const nftContractOut = await fetch('/ABI/GameNFT.json').then((res) => res.json());
   const params = await fetch('/params.json').then((res) => res.json());
+  
+  const mintContractAbi = mintContractOut.abi;
+  const nftContractAbi = nftContractOut.abi;
   const mintContractAddress = params.mintContractAddress;
   const nftContractAddress = params.nftContractAddress;
 
+  console.log("Mint contract address: ", mintContractAddress);
+  console.log("Mint contract ABI: ", mintContractAbi);
+  console.log("NFT contract address: ", nftContractAddress);
+  console.log("NFT contract ABI: ", nftContractAbi);
   const mintContract = new web3.eth.Contract(mintContractAbi, mintContractAddress);
   const nftContract = new web3.eth.Contract(nftContractAbi, nftContractAddress);
   return {
@@ -56,7 +62,7 @@ export async function getCommitEvents(contracts) {
 
 // Function to return the max ID of the NFTs, stored in the mint contract
 export async function getMaxID(contracts) {
-  const maxID = await contracts.mintContract.methods.ID_COUNT().call();
+  const maxID = await contracts.mintContract.methods.id_count().call();
   return maxID;
 }
 
@@ -79,6 +85,8 @@ export async function getOwnedTokenIds(address, contracts) {
 
 // Reads the state of the Mint contract. Can be [NOT_DEPLOYED, SETUP, COMMIT, REVEAL, MINT]
 export async function getMintContractState(contracts) {
+  if (!contracts) return 'NOT_DEPLOYED';
+  
   // In params.json, check if isDeployed is true
   const isDeployed = await fetch('/params.json').then((res) => res.json()).then((res) => res.deployed);
   if (!isDeployed) return 'NOT_DEPLOYED';
