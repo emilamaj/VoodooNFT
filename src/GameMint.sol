@@ -21,6 +21,7 @@ contract GameMint is AccessControl {
 
     // bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00; // Inherited from AccessControl.sol
     GameNFT public nftContract;
+    uint256 public id_count; // Number of different NFTs available for minting.
 
     bool public isSetup = false; // Is the contract correctly setup (price, hash, block height, etc...) ?
     uint256 public revealBlock; // Block number starting from which the Admin can reveal their commitment, and allow users to mint their NFTs. Could use uint32 to save gas on storage. Could merge with isSetup.
@@ -31,11 +32,11 @@ contract GameMint is AccessControl {
     mapping(address => bool) public hasCommitted; // Keep track of which users have committed a mint order.
     mapping(address => bool) public hasMinted; // Keeps track of which users have minted an NFT.
 
-    uint256 public constant ID_COUNT = 4; // Number of different NFTs available for minting.
     // Simple constructor.
-    constructor(address _nftContract) {
+    constructor(address _nftContract, uint256 _id_count) {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         nftContract = GameNFT(_nftContract);
+        id_count = _id_count;
     }
 
     // Grant admin role to another account. WARNING: Make sure to communicate the adminSecret through an off-chain canal.
@@ -111,7 +112,7 @@ contract GameMint is AccessControl {
         require(!hasMinted[_msgSender()], "User has already minted");
 
         // Calculate the NFT type to mint.
-        uint256 nftTypeId = uint256(keccak256(abi.encodePacked(_msgSender(), adminSecret))) % ID_COUNT;
+        uint256 nftTypeId = uint256(keccak256(abi.encodePacked(_msgSender(), adminSecret))) % id_count;
 
         // Mint 1 NFT of the given type, with no optional data.
         nftContract.mint(_msgSender(), nftTypeId, 1, "");

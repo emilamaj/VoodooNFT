@@ -17,11 +17,9 @@ contract GameNFT is ERC1155, AccessControl {
     // bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00; // Inherited from AccessControl.sol
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    uint256 public constant ID_COUNT = 4; // Number of different NFTs available for minting.
-    
     // Constructor, not much is done here.
     constructor(string memory _base_uri) ERC1155("") {
-        // ERC1155 constructor requires a base URI, but we overried the uri() function to return "base_uri + {id}.json"
+        // ERC1155 constructor required a base URI, but we overried the uri() function instead to return "base_uri + {id}.json"
         base_uri = _base_uri;
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
