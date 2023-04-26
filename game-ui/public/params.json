@@ -1,5 +1,5 @@
 {
     "deployed": false,
-    "nftAddress": "0x",
-    "mintAddress": "0x"
+    "nftContractAddress": "0xBadAddress",
+    "mintContractAddress": "0xBADADD2E55"
 }
