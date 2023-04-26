@@ -12,16 +12,17 @@ import "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 contract GameNFT is ERC1155, AccessControl {
     event Mint(address indexed account, uint256 indexed id, uint256 amount, bytes data);
 
-    // Base URI
-    string constant BASE_URI = "https://localhost:3000/metadata/";
-    string constant JSON_URI = "https://localhost:3000/metadata/{id}.json";
+    // Base URI https://localhost:3000/metadata/
+    string public base_uri = "";
     // bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00; // Inherited from AccessControl.sol
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     uint256 public constant ID_COUNT = 4; // Number of different NFTs available for minting.
     
     // Constructor, not much is done here.
-    constructor() ERC1155(JSON_URI) {
+    constructor(string memory _base_uri) ERC1155("") {
+        // ERC1155 constructor requires a base URI, but we overried the uri() function to return "base_uri + {id}.json"
+        base_uri = _base_uri;
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
@@ -52,18 +53,18 @@ contract GameNFT is ERC1155, AccessControl {
     }
     
     // Override "uri" function to return the base URI (for compatibility with OpenSea).
-    function uri(uint256 _tokenid) override public pure returns (string memory) {
+    function uri(uint256 _tokenid) override public view returns (string memory) {
         return string(
             abi.encodePacked( // Use of abi.encodePacked to concatenate strings
-                BASE_URI,
+                base_uri,
                 Strings.toString(_tokenid),".json"
             )
         );
     }
 
     // Contract-level metadata (also called storefront metadata)
-    function contractURI() public pure returns (string memory) {
-        return string(abi.encodePacked(BASE_URI, "contract.json"));
+    function contractURI() public view returns (string memory) {
+        return string(abi.encodePacked(base_uri, "contract.json"));
     }
 
     // Mint a new NFT. Only authorized accounts can mint (GameMint/Admins). The users are supposed to interact with GameMint.sol for minting.

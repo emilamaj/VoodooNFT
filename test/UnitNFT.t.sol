@@ -9,11 +9,11 @@ import "../src/GameNFT.sol";
 
 contract UnitNFT is Test {
     GameNFT public nftContract;
-
+    string constant BASE_URI = "https://localhost:3000/metadata/";
     // In each Foundry test, the setUp() function is called before each test. Tests are independent of each other.
     function setUp() public {
         // Deploy the NFT contract
-        nftContract = new GameNFT();
+        nftContract = new GameNFT(BASE_URI);
     }
 
     // Contract should return storefront metadata .json file

@@ -9,6 +9,7 @@ import "../src/GameNFT.sol";
 import "../src/GameMint.sol";
 
 contract UnitNFT is Test {
+    string constant BASE_URI = "https://localhost:3000/metadata/";
     GameNFT public nftContract;
     GameMint public mintContract;
 
@@ -20,7 +21,7 @@ contract UnitNFT is Test {
     // In each Foundry test, the setUp() function is called before each test. Tests are independent of each other.
     function setUp() public {
         // Deploy the NFT contract
-        nftContract = new GameNFT();
+        nftContract = new GameNFT(BASE_URI);
         mintContract = new GameMint(address(nftContract));
 
         // Set the mint contract as a minter for the NFT contract (MINTER_ROLE)
