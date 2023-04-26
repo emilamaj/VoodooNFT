@@ -1,6 +1,6 @@
 {
     "name": "Ravenclaw",
     "description": "This token represents a seat in the Ravenclaw house.",
-    "image": "https://ipfs.io/ipfs/bafkreifvhjdf6ve4jfv6qytqtux5nd4nwnelioeiqx5x2ez5yrgrzk7ypi",
-    "external_url": "https://ipfs.io/ipfs/bafkreifvhjdf6ve4jfv6qytqtux5nd4nwnelioeiqx5x2ez5yrgrzk7ypi"
+    "image": "https://localhost:3000/metadata/ravenclaw.png",
+    "external_url": "https://localhost:3000/tokenViewer/3"
 }

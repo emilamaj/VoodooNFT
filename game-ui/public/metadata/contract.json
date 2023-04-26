@@ -1,7 +1,6 @@
 {
-    "name": "Test NFT Contract",
-    "description": "Test NFT Contract showcasing basic NFT functionality",
-    "image": "https://localhost:3000/metadata/contract.png",
-    "external_link": "https://localhost:3000/"
-  }
-  
+  "name": "Harry potter houses NFT",
+  "description": "Test NFT Contract showcasing basic NFT functionality",
+  "image": "https://localhost:3000/metadata/contract.png",
+  "external_link": "https://localhost:3000/"
+}

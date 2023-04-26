@@ -1,6 +1,6 @@
 {
     "name": "Gryffindor",
     "description": "This token represents a seat in the Gryffindor house.",
-    "image": "https://ipfs.io/ipfs/bafkreifvhjdf6ve4jfv6qytqtux5nd4nwnelioeiqx5x2ez5yrgrzk7ypi",
-    "external_url": "https://ipfs.io/ipfs/bafkreifvhjdf6ve4jfv6qytqtux5nd4nwnelioeiqx5x2ez5yrgrzk7ypi"
+    "image": "https://localhost:3000/metadata/gryffindor.png",
+    "external_url": "https://localhost:3000/tokenViewer/1"
 }
