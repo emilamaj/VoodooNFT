@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NFTView from './NFTView';
 import { getOwnedTokenIds } from './utils/contractInteraction';
 
-function NFTList({ address }) {
+function NFTList({ address, contracts }) {
   const [ownedTokenIds, setOwnedTokenIds] = useState([]);
   const [selectedTokenId, setSelectedTokenId] = useState(null);
 
@@ -12,7 +12,7 @@ function NFTList({ address }) {
 
   const fetchOwnedTokenIds = async (address) => {
     // Fetch token ids owned by the given address
-    const tokenIdsOwned = await getOwnedTokenIds(address);
+    const tokenIdsOwned = await getOwnedTokenIds(address, contracts);
     setOwnedTokenIds(tokenIdsOwned);
   };
 

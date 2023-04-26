@@ -1,6 +1,11 @@
 import Web3 from 'web3';
 
-let web3;
+const rpcUrl = readRpcUrl();
+let web3 = new Web3(Web3.givenProvider || rpcUrl);
+
+async function readRpcUrl() {
+  return await fetch('/params.json').then((res) => res.json()).then((res) => res.rpcUrl);
+}
 
 export async function loadWeb3() {
   if (window.ethereum) {

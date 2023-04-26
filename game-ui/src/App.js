@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { loadWeb3, getCurrentAccount } from './components/utils/web3Provider';
 import { getContracts, commit, mint, getMintContractState } from './components/utils/contractInteraction';
 import CommitList from './components/CommitList';
 import CommitUser from './components/CommitUser';
@@ -15,30 +16,47 @@ function App() {
 
   useEffect(() => {
     loadContracts();
+    const interval = setInterval(() => {
+      loadContracts();
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
+  const loadWeb3AndAccount = async () => {
+    await loadWeb3();
+    const account = await getCurrentAccount();
+    setCurrentAccount(account);
+  };
+
   const loadContracts = async () => {
-    const contracts = await getContracts();
-    if (contracts) {
-      setContracts(contracts);
-      updateGameState();
+    const isDeployed = await fetch('/params.json').then((res) => res.json()).then((res) => res.deployed);
+    if (isDeployed) {
+      const ctr = await getContracts();
+      if (ctr) {
+        setContracts(ctr);
+        updateGameState();
+      }
+    } else {
+      setGameState('NOT_DEPLOYED');
     }
   };
 
   const updateGameState = () => {
     // Fetch game state from contract and update it
-    getMintContractState().then((sta) => {
+    getMintContractState(contracts).then((sta) => {
       setGameState(sta);
     });
   };
 
   const handleCommit = async () => {
-    await commit(currentAccount);
+    await loadWeb3AndAccount();
+    await commit(currentAccount, contracts);
     updateGameState();
   };
 
   const handleMint = async () => {
-    await mint(currentAccount);
+    await loadWeb3AndAccount();
+    await mint(currentAccount, contracts);
     updateGameState();
   };
 
@@ -69,7 +87,7 @@ function App() {
       <h1>My NFT Project</h1>
       {renderPhaseContent()}
       <NFTExplorer />
-      <NFTList address={currentAccount} />
+      <NFTList address={currentAccount} contracts={contracts} />
       {/* Render NFTView only if a specific NFT is selected */}
       {/*<NFTView tokenId={tokenId} />*/}
     </div>
