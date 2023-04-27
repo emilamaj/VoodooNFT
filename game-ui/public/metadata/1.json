@@ -1,6 +1,6 @@
 {
     "name": "Gryffindor",
     "description": "This token represents a seat in the Gryffindor house.",
-    "image": "https://localhost:3000/metadata/1.png",
-    "external_url": "https://localhost:3000/tokenViewer/1"
+    "image": "http://localhost:3000/metadata/1.png",
+    "external_url": "http://localhost:3000/tokenViewer/1"
 }

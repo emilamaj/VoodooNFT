@@ -2,19 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { loadWeb3, getCurrentAccount } from './components/utils/web3Provider';
 import { getContracts, commit, mint, getMintContractState } from './components/utils/contractInteraction';
 import CommitList from './components/CommitList';
+import MintList from './components/MintList';
 import CommitUser from './components/CommitUser';
 import MintUser from './components/MintUser';
 import NFTExplorer from './components/NFTExplorer';
 import NFTList from './components/NFTList';
 import NFTView from './components/NFTView';
+import ErrorDisplay from './components/ErrorDisplay';
 
 function App() {
   const [contracts, setContracts] = useState(null);
   const [gameState, setGameState] = useState('NOT_DEPLOYED');
   const [currentAccount, setCurrentAccount] = useState(null);
   const [committedNFTs, setCommittedNFTs] = useState(null);
-  const [commitEventsUpdated, setCommitEventsUpdated] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadContracts();
@@ -25,11 +27,16 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  const loadWeb3AndAccount = async () => {
-    console.log("loadWeb3AndAccount")
-    await loadWeb3();
-    const account = await getCurrentAccount();
-    setCurrentAccount(account);
+  const getAccountFromWallet = async () => {
+    let acc = currentAccount;
+    if (!acc) {
+      console.log("loadWeb3AndAccount")
+      await loadWeb3();
+      const account = await getCurrentAccount();
+      setCurrentAccount(account);
+      acc = account;
+    }
+    return acc
   };
 
   const loadContracts = async () => {
@@ -58,17 +65,13 @@ function App() {
     console.log("handleCommit");
     setLoading(true);
     try {
-      let acc = currentAccount;
-      if (!acc) {
-        await loadWeb3AndAccount();
-        acc = await getCurrentAccount();
-        setCurrentAccount(acc);
-      }
+      let acc = await getAccountFromWallet();
       await commit(acc, contracts);
+      loadContracts();
       updateGameState();
-      setCommitEventsUpdated(!commitEventsUpdated); // Toggle the state variable to trigger a refresh
     } catch (error) {
       console.error(`Error during commit: ${error.message}`);
+      setError(error);
     } finally {
       setLoading(false);
     }
@@ -78,16 +81,14 @@ function App() {
     console.log("handleMint");
     setLoading(true);
     try {
-      let acc = currentAccount;
-      if (!acc) {
-        await loadWeb3AndAccount();
-        acc = await getCurrentAccount();
-        setCurrentAccount(acc);
-      }
+      let acc = await getAccountFromWallet();
+      console.log("Using account: " + acc);
       await mint(acc, contracts);
+      loadContracts();
       updateGameState();
     } catch (error) {
       console.error(`Error during mint: ${error.message}`);
+      setError(error);
     } finally {
       setLoading(false);
     }
@@ -101,24 +102,15 @@ function App() {
   }, [contracts]);
 
   const renderPhaseContent = () => {
-    switch (gameState) {
-      case 'NOT_DEPLOYED':
-        return <p>Wainting for deployment. Set contract addresses in params.json</p>;
-      case 'SETUP':
-        return <p>Waiting for admin to setup the reveal block height, commit price, and secret hash.</p>;
-      case 'COMMIT':
-        return (
-          <>
-            <CommitUser handleCommit={handleCommit} />
-          </>
-        );
-      case 'REVEAL':
-        return <p>Reveal block reached. Waiting for admin to reveal the secret.</p>;
-      case 'MINT':
-        return <MintUser handleMint={handleMint} />;
-      default:
-        return <p>Loading...</p>;
-    }
+    return (
+      <>
+        {gameState === 'NOT_DEPLOYED' && <p>Waiting for deployment. Set contract addresses in params.json</p>}
+        {gameState === 'SETUP' && <p>Waiting for admin to setup the reveal block height, commit price, and secret hash.</p>}
+        {gameState === 'COMMIT' && <CommitUser handleCommit={handleCommit} />}
+        {gameState === 'REVEAL' && <p>Reveal block reached. Waiting for admin to reveal the secret.</p>}
+        {gameState === 'MINT' && <MintUser handleMint={handleMint} />}
+      </>
+    );
   };
 
   return (
@@ -126,11 +118,11 @@ function App() {
       <h1>Harry Potter NFTs</h1>
       {renderPhaseContent()}
       {loading && <div className="loading-spinner">Loading...</div>}
-      <CommitList contracts={contracts} commitEventsUpdated={commitEventsUpdated} />
-      <NFTExplorer />
-      <NFTList address={currentAccount} contracts={contracts} />
-      {/* Render NFTView only if a specific NFT is selected */}
-      {/*<NFTView tokenId={tokenId} />*/}
+      <ErrorDisplay error={error} />
+      <CommitList contracts={contracts} />
+      <MintList contracts={contracts} />
+      <NFTExplorer contracts={contracts} />
+      <NFTList address={currentAccount} contracts={contracts} connectWalletCallback={getAccountFromWallet}/>
     </div>
   );
 }

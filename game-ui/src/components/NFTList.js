@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import NFTView from './NFTView';
 import { getOwnedTokenIds } from './utils/contractInteraction';
 
-function NFTList({ address, contracts }) {
+function NFTList({ address, contracts, connectWalletCallback }) {
   const [ownedTokenIds, setOwnedTokenIds] = useState([]);
   const [selectedTokenId, setSelectedTokenId] = useState(null);
 
   useEffect(() => {
     fetchOwnedTokenIds(address);
-  }, [address]);
+  }, [address, contracts]);
 
   const fetchOwnedTokenIds = async (address) => {
     // Fetch token ids owned by the given address
@@ -17,19 +17,24 @@ function NFTList({ address, contracts }) {
   };
 
   const handleTokenIdClick = (tokenId) => {
+    console.log("handleTokenIdClick", tokenId)
     setSelectedTokenId(tokenId);
   };
 
   return (
     <div className="NFTList">
-      <h2>NFT List</h2>
+      <h2>Personnal NFT Portfolio</h2>
+      {/* If the addres provided is null, display a button to connect the wallet */}
+      {!address && (
+        <button onClick={connectWalletCallback}>Connect Wallet</button>
+      )}
       {address && (
-        <p>Displaying NFTs owned by {address}</p>
+        <p>NFTs owned by {address} (count: {ownedTokenIds.length})</p>
       )}
       <div className="token-list">
         {ownedTokenIds.map((tokenId, index) => (
           <button key={index} onClick={() => handleTokenIdClick(tokenId)}>
-            Token {tokenId}
+            View id={tokenId}
           </button>
         ))}
       </div>

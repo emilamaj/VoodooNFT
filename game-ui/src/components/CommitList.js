@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { getCommitEvents } from './utils/contractInteraction';
 
-function CommitList({ contracts, commitEventsUpdated }) {
+function CommitList({ contracts }) {
   const [commitEvents, setCommitEvents] = useState([]);
 
   useEffect(() => {
     loadCommitEvents();
-  }, [commitEventsUpdated]);
+  }, [contracts]);
 
   const loadCommitEvents = async () => {
     console.log("loadCommitEvents")

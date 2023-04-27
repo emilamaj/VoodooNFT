@@ -21,7 +21,7 @@ contract SetupMint is Script {
         GameMint mintContract = GameMint(addr);
 
         uint256 setPrice = vm.envUint("NFT_PRICE_MATIC_HUNDREDTH");
-        setPrice = setPrice * 100 ether;
+        setPrice = setPrice * 0.01 ether;// In hundredths of a MATIC
         console.log("Set price: ", setPrice);
         uint256 blockHeight = block.number +
             vm.envUint("BLOCK_REVEAL_SECONDS") /

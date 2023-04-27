@@ -1,0 +1,6 @@
+{
+    "name": "Slytherin",
+    "description": "This token represents a seat in the Slytherin house.",
+    "image": "http://localhost:3000/metadata/0.png",
+    "external_url": "http://localhost:3000/tokenViewer/0"
+}

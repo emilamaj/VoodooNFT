@@ -9,7 +9,7 @@ import "../src/GameNFT.sol";
 
 contract UnitNFT is Test {
     GameNFT public nftContract;
-    string constant BASE_URI = "https://localhost:3000/metadata/";
+    string constant BASE_URI = "http://localhost:3000/metadata/";
     // In each Foundry test, the setUp() function is called before each test. Tests are independent of each other.
     function setUp() public {
         // Deploy the NFT contract
@@ -19,13 +19,13 @@ contract UnitNFT is Test {
     // Contract should return storefront metadata .json file
     function test_ContractURI() public { // In Foundry, tests are earmarked with the "test_" keyword prefix.
         // Test the contractURI function
-        assertEq(nftContract.contractURI(), "https://localhost:3000/metadata/contract.json");
+        assertEq(nftContract.contractURI(), "http://localhost:3000/metadata/contract.json");
     }
 
     // Should return the correct URI for a given token ID
     function test_TokenURI() public {
         // Test the uri function
-        assertEq(nftContract.uri(1), "https://localhost:3000/metadata/1.json");
+        assertEq(nftContract.uri(1), "http://localhost:3000/metadata/1.json");
     }
 
     // Check the supportsInterface function.

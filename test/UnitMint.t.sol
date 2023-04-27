@@ -9,7 +9,7 @@ import "../src/GameNFT.sol";
 import "../src/GameMint.sol";
 
 contract UnitNFT is Test {
-    string constant BASE_URI = "https://localhost:3000/metadata/";
+    string constant BASE_URI = "http://localhost:3000/metadata/";
     GameNFT public nftContract;
     GameMint public mintContract;
 

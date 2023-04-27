@@ -4,12 +4,12 @@ const web3 = new Web3(Web3.givenProvider || 'http://localhost:8545');
 
 
 export async function getContracts() {
-  
+
   // Use fetch() to load the ABIs
   const mintContractOut = await fetch('/ABI/GameMint.json').then((res) => res.json());
   const nftContractOut = await fetch('/ABI/GameNFT.json').then((res) => res.json());
   const params = await fetch('/params.json').then((res) => res.json());
-  
+
   const mintContractAbi = mintContractOut.abi;
   const nftContractAbi = nftContractOut.abi;
   const mintContractAddress = params.mintContractAddress;
@@ -70,8 +70,19 @@ export async function getCommitEvents(contracts) {
   return events;
 }
 
+export async function getMintEvents(contracts) {
+  if (!contracts) return [];
+  // Replace with the relevant event name and filter options
+  const events = await contracts.mintContract.getPastEvents('UserMint', {
+    fromBlock: 0,
+    toBlock: 'latest',
+  });
+  return events;
+}
+
 // Function to return the max ID of the NFTs, stored in the mint contract
 export async function getMaxID(contracts) {
+  if (!contracts) return 0;
   const maxID = await contracts.mintContract.methods.id_count().call();
   return maxID;
 }
@@ -96,7 +107,7 @@ export async function getOwnedTokenIds(address, contracts) {
 // Reads the state of the Mint contract. Can be [NOT_DEPLOYED, SETUP, COMMIT, REVEAL, MINT]
 export async function getMintContractState(contracts) {
   if (!contracts) return 'NOT_DEPLOYED';
-  
+
   // In params.json, check if isDeployed is true
   const isDeployed = await fetch('/params.json').then((res) => res.json()).then((res) => res.deployed);
   if (!isDeployed) return 'NOT_DEPLOYED';
@@ -110,9 +121,9 @@ export async function getMintContractState(contracts) {
 
   // Check if the secret has been revealed
   const secret = await contracts.mintContract.methods.adminSecret().call();
-  if (secret == 0) return 'REVEAL'; 
+  if (secret == 0) return 'REVEAL';
 
-  
+
   // We must be in the MINT phase
   return 'MINT';
 }

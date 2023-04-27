@@ -35,11 +35,36 @@ contract DeployContract is Script {
 
         // Write both addresses to a local file
         string memory path = "./nftAddress.txt"; // The path is relative to the root of the project folder.
-        string memory data = Strings.toHexString(uint256(uint160(address(nftContract))), 20);
+        string memory data = Strings.toHexString(
+            uint256(uint160(address(nftContract))),
+            20
+        );
         vm.writeFile(path, data);
 
         string memory path2 = "./mintAddress.txt"; // The path is relative to the root of the project folder.
-        string memory data2 = Strings.toHexString(uint256(uint160(address(mintContract))), 20);
+        string memory data2 = Strings.toHexString(
+            uint256(uint160(address(mintContract))),
+            20
+        );
         vm.writeFile(path2, data2);
+
+        /*Create a .json file with the following content:
+        {
+            "deployed": true,
+            "nftContractAddress": "0x7750069da7917855f54c01016343e8dae39654b2",
+            "mintContractAddress": "0xf3f93b31430744e99518bb6b2a6a9ac72f9ce874",
+            "rpcUrl": "https://polygon-mumbai.g.alchemy.com/v2/2cLxegjcwQTpjyJ71oNmF0ePehN8zDSc"
+        }
+        The file will be located in ./game-ui/public/params.json */
+        string memory path3 = "./game-ui/public/params.json"; // The path is relative to the root of the project folder.
+        string memory data3 = '{\n\t"deployed": true,\n\t"nftContractAddress": "';
+        data3 = string(abi.encodePacked(data3, Strings.toHexString(uint256(uint160(address(nftContract))), 20)));
+        data3 = string(abi.encodePacked(data3, '",\n\t"mintContractAddress": "'));
+        data3 = string(abi.encodePacked(data3, Strings.toHexString(uint256(uint160(address(mintContract))), 20)));
+        data3 = string(abi.encodePacked(data3, '",\n\t"rpcUrl": "'));
+        data3 = string(abi.encodePacked(data3, vm.envString("MUMBAI_RPC_URL")));
+        data3 = string(abi.encodePacked(data3, '"\n}'));
+        vm.writeFile(path3, data3);
+        
     }
 }

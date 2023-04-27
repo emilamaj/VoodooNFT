@@ -12,7 +12,7 @@ import "../lib/openzeppelin-contracts/contracts/utils/Strings.sol";
 contract GameNFT is ERC1155, AccessControl {
     event Mint(address indexed account, uint256 indexed id, uint256 amount, bytes data);
 
-    // Base URI https://localhost:3000/metadata/
+    // Base URI http://localhost:3000/metadata/
     string public base_uri = "";
     // bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00; // Inherited from AccessControl.sol
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");

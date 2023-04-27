@@ -1,6 +1,6 @@
 {
     "name": "Hufflepuff",
     "description": "This token represents a seat in the Hufflepuff house.",
-    "image": "https://localhost:3000/metadata/2.png",
-    "external_url": "https://localhost:3000/tokenViewer/2"
+    "image": "http://localhost:3000/metadata/2.png",
+    "external_url": "http://localhost:3000/tokenViewer/2"
 }
