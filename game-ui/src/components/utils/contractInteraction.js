@@ -36,9 +36,13 @@ export async function commit(account, contracts) {
   // The user must pay to commit, the uint256 nftPrice is a public variable in the smart contract
   const price = await contracts.mintContract.methods.nftPrice().call();
   const gas = await txObject.estimateGas({ from: account, value: price });
-  const tx = await txObject.send({ from: account, value: price, gas });
-
-  return tx;
+  try {
+    const tx = await txObject.send({ from: account, value: price, gas });
+    return tx;
+  } catch (error) {
+    const reason = await getRevertReason(error.transactionHash);
+    throw new Error(reason);
+  }
 }
 
 // This function is called when the user wants to mint the NFT
@@ -47,11 +51,17 @@ export async function mint(account, contracts) {
 
   const txObject = contracts.mintContract.methods.userMint();
   const gas = await txObject.estimateGas({ from: account });
-  const tx = await txObject.send({ from: account, gas });
-  return tx;
+  try {
+    const tx = await txObject.send({ from: account, gas });
+    return tx;
+  } catch (error) {
+    const reason = await getRevertReason(error.transactionHash);
+    throw new Error(reason);
+  }
 }
 
 export async function getCommitEvents(contracts) {
+  if (!contracts) return [];
   // Replace with the relevant event name and filter options
   const events = await contracts.mintContract.getPastEvents('UserCommit', {
     fromBlock: 0,
@@ -105,4 +115,11 @@ export async function getMintContractState(contracts) {
   
   // We must be in the MINT phase
   return 'MINT';
+}
+
+export async function getRevertReason(txHash) {
+  const receipt = await web3.eth.getTransactionReceipt(txHash);
+  const result = await web3.eth.call(receipt, receipt.blockNumber);
+  const reason = web3.utils.hexToAscii(result);
+  return reason;
 }

@@ -14,6 +14,7 @@ function App() {
   const [currentAccount, setCurrentAccount] = useState(null);
   const [committedNFTs, setCommittedNFTs] = useState(null);
   const [commitEventsUpdated, setCommitEventsUpdated] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadContracts();
@@ -55,23 +56,42 @@ function App() {
   // Update the handleCommit function
   const handleCommit = async () => {
     console.log("handleCommit");
-    await loadWeb3AndAccount();
-    await commit(currentAccount, contracts);
-    updateGameState();
-    setCommitEventsUpdated(!commitEventsUpdated); // Toggle the state variable to trigger a refresh
+    setLoading(true);
+    try {
+      let acc = currentAccount;
+      if (!acc) {
+        await loadWeb3AndAccount();
+        acc = await getCurrentAccount();
+        setCurrentAccount(acc);
+      }
+      await commit(acc, contracts);
+      updateGameState();
+      setCommitEventsUpdated(!commitEventsUpdated); // Toggle the state variable to trigger a refresh
+    } catch (error) {
+      console.error(`Error during commit: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
-
-
 
   const handleMint = async () => {
     console.log("handleMint");
-    if (!currentAccount) {
-      await loadWeb3AndAccount();
+    setLoading(true);
+    try {
+      let acc = currentAccount;
+      if (!acc) {
+        await loadWeb3AndAccount();
+        acc = await getCurrentAccount();
+        setCurrentAccount(acc);
+      }
+      await mint(acc, contracts);
+      updateGameState();
+    } catch (error) {
+      console.error(`Error during mint: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
-    await mint(currentAccount, contracts);
-    updateGameState();
   };
-  
 
   useEffect(() => {
     if (contracts) {
@@ -105,6 +125,7 @@ function App() {
     <div className="App">
       <h1>Harry Potter NFTs</h1>
       {renderPhaseContent()}
+      {loading && <div className="loading-spinner">Loading...</div>}
       <CommitList contracts={contracts} commitEventsUpdated={commitEventsUpdated} />
       <NFTExplorer />
       <NFTList address={currentAccount} contracts={contracts} />
