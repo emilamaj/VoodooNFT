@@ -13,6 +13,7 @@ function App() {
   const [gameState, setGameState] = useState('NOT_DEPLOYED');
   const [currentAccount, setCurrentAccount] = useState(null);
   const [committedNFTs, setCommittedNFTs] = useState(null);
+  const [commitEventsUpdated, setCommitEventsUpdated] = useState(false);
 
   useEffect(() => {
     loadContracts();
@@ -51,19 +52,26 @@ function App() {
     });
   };
 
+  // Update the handleCommit function
   const handleCommit = async () => {
-    console.log("handleCommit")
+    console.log("handleCommit");
     await loadWeb3AndAccount();
     await commit(currentAccount, contracts);
     updateGameState();
+    setCommitEventsUpdated(!commitEventsUpdated); // Toggle the state variable to trigger a refresh
   };
 
+
+
   const handleMint = async () => {
-    console.log("handleMint")
-    await loadWeb3AndAccount();
+    console.log("handleMint");
+    if (!currentAccount) {
+      await loadWeb3AndAccount();
+    }
     await mint(currentAccount, contracts);
     updateGameState();
   };
+  
 
   useEffect(() => {
     if (contracts) {
@@ -77,16 +85,15 @@ function App() {
       case 'NOT_DEPLOYED':
         return <p>Wainting for deployment. Set contract addresses in params.json</p>;
       case 'SETUP':
-        return <p>Waiting for admin to set the reveal block, commit price, and secret hash.</p>;
+        return <p>Waiting for admin to setup the reveal block height, commit price, and secret hash.</p>;
       case 'COMMIT':
         return (
           <>
             <CommitUser handleCommit={handleCommit} />
-            <CommitList />
           </>
         );
       case 'REVEAL':
-        return <p>Waiting for admin to reveal the secret.</p>;
+        return <p>Reveal block reached. Waiting for admin to reveal the secret.</p>;
       case 'MINT':
         return <MintUser handleMint={handleMint} />;
       default:
@@ -98,6 +105,7 @@ function App() {
     <div className="App">
       <h1>Harry Potter NFTs</h1>
       {renderPhaseContent()}
+      <CommitList contracts={contracts} commitEventsUpdated={commitEventsUpdated} />
       <NFTExplorer />
       <NFTList address={currentAccount} contracts={contracts} />
       {/* Render NFTView only if a specific NFT is selected */}

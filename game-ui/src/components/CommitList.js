@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { getCommitEvents } from './utils/contractInteraction';
 
-function CommitList() {
+function CommitList({ contracts, commitEventsUpdated }) {
   const [commitEvents, setCommitEvents] = useState([]);
 
   useEffect(() => {
     loadCommitEvents();
-  }, []);
+  }, [commitEventsUpdated]);
 
   const loadCommitEvents = async () => {
-    const events = await getCommitEvents();
+    console.log("loadCommitEvents")
+    const events = await getCommitEvents(contracts);
+    console.log("Found Commit Events: ", events);
     setCommitEvents(events);
   };
 
@@ -22,7 +24,7 @@ function CommitList() {
         <ul>
           {commitEvents.map((event, index) => (
             <li key={index}>
-              Address: {event.returnValues.user}, Token Id: {event.returnValues.tokenId}
+              Address: {event.returnValues.user}
             </li>
           ))}
         </ul>

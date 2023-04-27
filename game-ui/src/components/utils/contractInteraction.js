@@ -36,7 +36,7 @@ export async function commit(account, contracts) {
   // The user must pay to commit, the uint256 nftPrice is a public variable in the smart contract
   const price = await contracts.mintContract.methods.nftPrice().call();
   const gas = await txObject.estimateGas({ from: account, value: price });
-  const tx = await txObject.send({ from: account, gas });
+  const tx = await txObject.send({ from: account, value: price, gas });
 
   return tx;
 }
