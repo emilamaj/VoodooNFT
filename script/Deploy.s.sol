@@ -20,14 +20,16 @@ contract DeployContract is Script {
         uint256 id_count = vm.envUint("NFT_ID_COUNT");
         console.log("NFT ID count: ", id_count);
 
+        /////////////////////////////
+        //NOTE 1: Sometimes, the deployment fails for unknown reasons, and to redeploy, the nonce of the transcation needs to be bumped by 1.
+        // vm.setNonce(address(this), vm.getNonce(address(this)) + 1);
+        /////////////////////////////
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy the NFT contract
         GameNFT nftContract = new GameNFT(BASE_URI);
-
         // Deploy the Mint contract
         GameMint mintContract = new GameMint(address(nftContract), id_count);
-
         // Grant MINTER_ROLE to the Mint contract
         nftContract.addMinterRole(address(mintContract));
 
@@ -65,6 +67,8 @@ contract DeployContract is Script {
         data3 = string(abi.encodePacked(data3, vm.envString("MUMBAI_RPC_URL")));
         data3 = string(abi.encodePacked(data3, '"\n}'));
         vm.writeFile(path3, data3);
-        
+
+        //NOTE Sometimes, the deployment fails for unknown reasons, and to redeploy, the nonce of the transcation needs to be bumped by 1.
+        console.log("If the transaction fails for 'gas underpriced' reasons, uncomment the line after 'NOTE 1'.");
     }
 }
