@@ -33,8 +33,8 @@ contract SetupMint is Script {
 
 
         /////////////////////////////
-        //NOTE 1: Sometimes, the deployment fails for unknown reasons, and to redeploy, the nonce of the transcation needs to be bumped by 1.
-        vm.setNonce(address(this), vm.getNonce(address(this)) + 1);
+        // //NOTE 1: Sometimes, the deployment fails for unknown reasons, and to redeploy, the nonce of the transcation needs to be bumped by 1.
+        // vm.setNonce(address(this), vm.getNonce(address(this)) + 1);
         /////////////////////////////
         vm.startBroadcast(deployerPrivateKey);
         mintContract.adminSetup(blockHeight, setPrice, adminSecretHash);

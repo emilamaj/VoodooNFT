@@ -21,7 +21,7 @@ contract DeployContract is Script {
         console.log("NFT ID count: ", id_count);
 
         /////////////////////////////
-        //NOTE 1: Sometimes, the deployment fails for unknown reasons, and to redeploy, the nonce of the transcation needs to be bumped by 1.
+        // //NOTE 1: Sometimes, the deployment fails for unknown reasons, and to redeploy, the nonce of the transcation needs to be bumped by 1.
         // vm.setNonce(address(this), vm.getNonce(address(this)) + 1);
         /////////////////////////////
         vm.startBroadcast(deployerPrivateKey);
