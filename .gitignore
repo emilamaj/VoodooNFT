@@ -12,8 +12,14 @@ broadcast
 # Docs
 docs/
 
-# Dotenv file
+################
+# Dotenv file. Contains Admin private key
 .env
+# Contains RPC url
+game-ui/public/params.json
+################
 
+
+# These 2 files store the addresses to put into params.json
 mintAddress.txt
 nftAddress.txt
