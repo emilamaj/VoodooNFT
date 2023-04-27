@@ -22,8 +22,16 @@ contract RevealSecret is Script {
         uint256 adminSecret = vm.envUint("ADMIN_SECRET_UINT256");
         console.log("Admin secret to be revealed: ", adminSecret);
 
+        /////////////////////////////
+        //NOTE 1: Sometimes, the deployment fails for unknown reasons, and to redeploy, the nonce of the transcation needs to be bumped by 1.
+        // vm.setNonce(address(this), vm.getNonce(address(this)) + 1);
+        /////////////////////////////
         vm.startBroadcast(deployerPrivateKey);
         mintContract.adminReveal(adminSecret);
         vm.stopBroadcast();
+
+        
+        //NOTE Sometimes, the deployment fails for unknown reasons, and to redeploy, the nonce of the transcation needs to be bumped by 1.
+        console.log("If the transaction fails for 'gas underpriced' reasons, uncomment the line after 'NOTE 1'.");
     }
 }

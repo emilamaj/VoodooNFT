@@ -31,8 +31,17 @@ contract SetupMint is Script {
         bytes32 adminSecretHash = keccak256(abi.encodePacked(adminSecret));
         console.log("Admin secret hash (uint256): ", uint256(adminSecretHash));
 
+
+        /////////////////////////////
+        //NOTE 1: Sometimes, the deployment fails for unknown reasons, and to redeploy, the nonce of the transcation needs to be bumped by 1.
+        vm.setNonce(address(this), vm.getNonce(address(this)) + 1);
+        /////////////////////////////
         vm.startBroadcast(deployerPrivateKey);
         mintContract.adminSetup(blockHeight, setPrice, adminSecretHash);
         vm.stopBroadcast();
+
+        
+        //NOTE Sometimes, the deployment fails for unknown reasons, and to redeploy, the nonce of the transcation needs to be bumped by 1.
+        console.log("If the transaction fails for 'gas underpriced' reasons, uncomment the line after 'NOTE 1'.");
     }
 }
