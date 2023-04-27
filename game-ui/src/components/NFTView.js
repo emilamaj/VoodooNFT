@@ -25,14 +25,14 @@ function NFTView({ tokenId }) {
 
   return (
     <div className="NFTView">
-      <h3>Token ID: {tokenId}</h3>
-      <img src={`/metadata/${tokenId}.png`} alt={metadata.name} style={{ width: '100px' }} />
-      {/* If the image is too big, you can resize it with CSS:*/}
-
-      {metadata && <div className="div-nft-metadata">
-          <p>{metadata.name}</p>
-          <p>{metadata.description}</p>
-      </div>}
+      <h3 className='NFTView-title'>Token ID: {tokenId}</h3>
+      <div className='NFTView-content'>
+        <img src={`/metadata/${tokenId}.png`} alt={metadata.name}/>
+        {metadata && <div className="div-nft-metadata">
+          <p className='metadata-name'>{metadata.name}</p>
+          <p className='metadata-description'>{metadata.description}</p>
+        </div>}
+      </div>
     </div>
   );
 }

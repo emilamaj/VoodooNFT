@@ -92,9 +92,11 @@ export async function getOwnedTokenIds(address, contracts) {
   if (!address) return [];
   if (!contracts) return [];
   // We use contract method "balanceOfBatch(address[] accounts, uint256[] ids)=>(uint256[] balances)"
-  const maxID = await getMaxID(contracts);
-  const ids = Array.from(Array(maxID).keys());
-  const balances = await contracts.nftContract.methods.balanceOfBatch([address], ids).call()
+  const maxID = await getMaxID(contracts)*1;
+  let addresses = Array(maxID).fill(address);
+  let ids = [];
+  for (ids = []; ids.push(ids.length) < maxID;);
+  const balances = await contracts.nftContract.methods.balanceOfBatch(addresses, ids).call()
   const tokenIdsOwned = [];
   for (let i = 0; i < balances.length; i++) {
     if (balances[i] > 0) {

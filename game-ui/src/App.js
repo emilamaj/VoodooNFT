@@ -9,6 +9,8 @@ import NFTExplorer from './components/NFTExplorer';
 import NFTList from './components/NFTList';
 import NFTView from './components/NFTView';
 import ErrorDisplay from './components/ErrorDisplay';
+// Load css files
+import './App.css';
 
 function App() {
   const [contracts, setContracts] = useState(null);
@@ -104,6 +106,7 @@ function App() {
   const renderPhaseContent = () => {
     return (
       <>
+        <h2>Game State</h2>
         {gameState === 'NOT_DEPLOYED' && <p>Waiting for deployment. Set contract addresses in params.json</p>}
         {gameState === 'SETUP' && <p>Waiting for admin to setup the reveal block height, commit price, and secret hash.</p>}
         {gameState === 'COMMIT' && <CommitUser handleCommit={handleCommit} />}
@@ -116,13 +119,22 @@ function App() {
   return (
     <div className="App">
       <h1>Harry Potter NFTs</h1>
-      {renderPhaseContent()}
-      {loading && <div className="loading-spinner">Loading...</div>}
-      <ErrorDisplay error={error} />
-      <CommitList contracts={contracts} />
-      <MintList contracts={contracts} />
-      <NFTExplorer contracts={contracts} />
-      <NFTList address={currentAccount} contracts={contracts} connectWalletCallback={getAccountFromWallet}/>
+      <p>Simple NFT project showcasing a commit-reveal sale mechanism.</p>
+      <div className="game-state">
+        <div className='game-state-core'>
+          {renderPhaseContent()}
+          {loading && <div className="loading-spinner">Loading...</div>}
+          <ErrorDisplay error={error} />
+        </div>
+        <div className="game-state-event-viewer">
+          <CommitList contracts={contracts} />
+          <MintList contracts={contracts} />
+        </div>
+      </div>
+      <div className="game-misc">
+        <NFTList address={currentAccount} contracts={contracts} connectWalletCallback={getAccountFromWallet} />
+        <NFTExplorer contracts={contracts} />
+      </div>
     </div>
   );
 }

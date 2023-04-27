@@ -1,0 +1,112 @@
+.App {
+    /* Align all its elements to the center */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* Set the width to 100% */
+    /* width: 100%; */
+}
+
+p,h1,h2,h3 {
+    /* Remove annoying margin */
+    margin: 0;
+}
+
+.game-state {
+    /* Split left and right the two divs */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: lightgray;
+    margin: 10px;
+    padding: 10px;
+
+}
+
+.game-misc {
+    /* Split left and right the two divs */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: lightgray;
+    margin: 10px;
+    padding: 10px;
+}
+
+.game-state-core {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid grey;
+}
+
+.game-state-event-viewer {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid grey;
+}
+
+.NFTList {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid grey;
+    
+}
+
+.NFTExplorer {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid grey;
+}
+
+.nft-list{
+    /* Limit height of the component, implement scroll bar */
+    height: 300px;
+    overflow-y: scroll;
+    margin-top: 5px;
+
+}
+
+.NFTView {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid grey;
+}
+
+.NFTView-content {
+    /* Display img on the left and the div containing the pararaphs on the right */
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+}
+
+.NFTView-content img {
+    width: 100px;
+}
+
+.NFTView-content p {
+    margin: 5px;
+}
+
+.NFTView-content p:first-child {
+    /* Make the first paragraph bold */
+    font-weight: bold;
+}
+
+.ErrorDisplay {
+    /* Limit width of the div, make the text red and bold */
+    max-width: 500px;
+    color: red;
+    font-weight: bold;
+
+}
+
+.ErrorDisplay p {
+    /* Wrap text */
+    word-wrap: break-word;
+}
+
+.loading-spinner {
+    /* Center the spinner */
+    margin: auto;
+}

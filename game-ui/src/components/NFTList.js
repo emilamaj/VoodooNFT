@@ -14,11 +14,12 @@ function NFTList({ address, contracts, connectWalletCallback }) {
     // Fetch token ids owned by the given address
     const tokenIdsOwned = await getOwnedTokenIds(address, contracts);
     setOwnedTokenIds(tokenIdsOwned);
+    console.log("Found Owned Token IDs: ", tokenIdsOwned);
   };
 
   const handleTokenIdClick = (tokenId) => {
     console.log("handleTokenIdClick", tokenId)
-    setSelectedTokenId(tokenId);
+    setSelectedTokenId(selectedTokenId===tokenId ? null : tokenId);
   };
 
   return (

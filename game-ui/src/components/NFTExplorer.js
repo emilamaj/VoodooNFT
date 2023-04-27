@@ -29,6 +29,7 @@ function NFTExplorer( { contracts } ) {
   return (
     <div className="NFTExplorer">
       <h2>NFT Explorer</h2>
+      <p>Explore the available NFTs.</p>
       <div className="nft-list">
         {/* {Loop through all NFTs} */}
         {maxId && idList.map((tid) => (
