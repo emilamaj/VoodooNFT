@@ -23,6 +23,13 @@ This project uses the following tools/frameworks:
 - [Foundry](https://book.getfoundry.sh/) Which is a modern, Rust-written Soldity smart contract development framework. It provides a CLI to compile, test, deploy and verify smart contracts. Everything from tests to deployment procedures are written in solidity, which eases a lot of the frictions.
 - ReactJS for the user interface
 
+First, extract the project `.zip` into a new folder. \
+You will have to run the following commands to setup the project:
+```bash
+forge init --force
+forge install openzeppelin/openzeppelin-contracts
+```	
+
 # Contracts
 
 ## How to run tests
@@ -95,6 +102,8 @@ forge script script/Reveal.s.sol:RevealSecret --rpc-url mumbai --broadcast -vv
 This project provides a simple User Interface to interact with the contracts. \
 The front page displays general info about the NFT project, as well as the current state of the game. \
 
+The frontend was only tested on _Chrome_. \
+
 Once the contracts are deployed, you should update the frontend parameters in `params.json` to match the deployed contracts. 
 ```json
 {
@@ -111,3 +120,11 @@ Depending on the state of the Game, users can interact with the contracts in dif
 Users can freely explore the NFTs and their metadata. \
 The metadata is stored at `/metadata/<token_id>.json` and references the image at `/metadata/<token_id>.png`
 Users can also view the NFTs owned by a given address.
+
+## Running the frontend
+
+To run the React project, run the following commands inside the `game-ui/` folder:
+```bash
+npm install
+npm start
+```
