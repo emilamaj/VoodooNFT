@@ -35,7 +35,7 @@ function NFTList({ address, contracts, connectWalletCallback }) {
       <div className="token-list">
         {ownedTokenIds.map((tokenId, index) => (
           <button key={index} onClick={() => handleTokenIdClick(tokenId)}>
-            View id={tokenId}
+            View id {tokenId}
           </button>
         ))}
       </div>

@@ -40,6 +40,13 @@ p,h1,h2,h3 {
     border: 1px solid grey;
 }
 
+.game-state-core .MintUser button {
+    /* Button to mint a new NFT */
+    border: 2px solid grey;
+    border-radius: 5px;
+    font-size: 15px;
+}
+
 .game-state-event-viewer {
     margin: 10px;
     padding: 10px;
@@ -50,7 +57,21 @@ p,h1,h2,h3 {
     margin: 10px;
     padding: 10px;
     border: 1px solid grey;
-    
+}
+
+.NFTList .token-list{
+    /*Button to select a NFT to display*/
+    margin: 10px;
+    /* There may be multiple buttons, so we need to align them to the center */
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.NFTList .token-list button {
+    border: 2px solid grey;
+    border-radius: 5px;
+    font-size: 15px;
 }
 
 .NFTExplorer {
@@ -59,7 +80,7 @@ p,h1,h2,h3 {
     border: 1px solid grey;
 }
 
-.nft-list{
+.NFTExplorer .nft-list{
     /* Limit height of the component, implement scroll bar */
     height: 300px;
     overflow-y: scroll;
